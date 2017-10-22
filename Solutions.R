@@ -358,3 +358,80 @@ your.days<-c(julian(my.days,origin=as.Date("1960-01-01")))
   prop.table(margin.table(my.table, 3:1),2)
   prop.table(margin.table(my.table, c(1,3)),2)
   
+#### Week 12: ####
+# Quiz 1:
+packageurl <- "https://mran.revolutionanalytics.com/snapshot/2015-11-30/bin/windows/contrib/3.2/ggplot2_1.0.1.zip"
+install.packages(packageurl, repos=NULL, type="source")
+library(ggplot2)
+
+qplot(hp, qsec, data=mtcars, geom=c("point","smooth"), method="lm") 
+
+# Quiz 2:
+##color & facets
+
+# Quiz 3:
+p<-gplot(data=mtcars)
+p<-p+aes(x=qsec, y=hp)
+p<-p+geom_point()+geom_smooth(method=lm)
+p
+
+# Quiz 4:
+hist(airquality$Temp, breaks=10)
+qplot(Temp, data=airquality,binwidth=5)
+
+# Quiz 5:
+x<-rnorm(1000, mean=-5)
+plot(density(x))
+
+ggplot()+aes(x=x)+geom_density()
+qplot(x)
+qplot(x, geom = "density")
+
+# Lab 12:
+my.data<-data.frame(federal.states=c("Baden-Württemberg","Bayern","Berlin",
+                                     "Brandenburg","Bremen","Hamburg","Hessen",
+                                     "Mecklenburg-Vorpommern","Niedersachsen",
+                                     "Nordrhein-Westfalen","Rheinland-Pfalz",
+                                     "Saarland","Sachsen","Sachsen-Anhalt",
+                                     "Schleswig-Holstein","Thüringen"), 
+                    Population=c(10716644,12691568,3469849,2457872,661888,1762791,
+                                 6093888,1599138,7826739,17638098,4011582,989035,4055274,
+                                 2235548,2830864,2156759))
+
+# 1:
+library(ggplot2)
+library(ggmap)
+str(my.data$federal.states)
+
+my.data$federal.states<-as.character(my.data$federal.states)
+
+# 2:
+latlon <- geocode(my.data$federal.states)
+
+# 3:
+my.data$federal.states[1]<-"Baden-Wurttemberg"
+my.data$federal.states[16]<-"Thuringen Germany"
+
+# 4:
+latlon <- geocode(my.data$federal.states)
+View(latlon)
+my.data<-cbind(my.data,latlon)
+
+my.data$lon <- latlon$lon
+my.data$lat <- latlon$lat
+
+# 5:
+Germany <- ggmap(get_map(location="Germany",zoom=6), extent="panel")
+
+## Fixed error
+library(devtools)
+install_github('ggmap','dkahle')
+
+# 6:
+circle_scale<-0.000002
+Germany+geom_point(aes(x=lon, y=lat),
+                   data=my.data,
+                   col="red",
+                   alpha=0.4,
+                   size=my.data$Population*circle_scale)
+
