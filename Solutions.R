@@ -357,7 +357,203 @@ your.days<-c(julian(my.days,origin=as.Date("1960-01-01")))
   prop.table(margin.table(my.table, c(3,1)),1)
   prop.table(margin.table(my.table, 3:1),2)
   prop.table(margin.table(my.table, c(1,3)),2)
+
+
+#### Week 10: ####
+# Ej 1:
+par(mfrow=c(3,3))
+
+set.seed(779)
+for(i in 1:9){
+  hist(rnorm(25), probability=TRUE,main=paste("Histogram",i))
+  curve(dnorm,add=TRUE,col="red",lwd=3)
+}
+
+# Ej 2:
+....
+
+
+
+# Quiz 1:
+a<-(3.373546+4.183643+3.164371)/3
+b<-(1.164371+2.183643+1.373546)/3
+c<-(5.373546+6.183643+5.164371)/3
+d<-(-2.835629+ (-1.816357)+(-2.626454))/3
+
+# Quiz 3:
+n<-10000 
+doone <- function(){ 
+  x<-rbinom(1,50,1/6) 
+  p<-x/50 
+  p 
+} 
+p.sim<-replicate(n,doone())
+mean(p.sim)
+sd(p.sim)
+
+# Quiz 4:
+n<-100
+doone <- function(){ 
+  x<-rbinom(1,50,1/6) 
+  p<-x/50 
+  p 
+} 
+p.sim<-replicate(n,doone()) 
+hist(p.sim,breaks=20)
+
+# Quiz 5:
+hist(rnorm(1000, mean=5, sd=2))
+
+#### Lab: #### 
+t10<-read.table("https://raw.githubusercontent.com/MicrosoftLearning/Programming-in-R-for-Data-Science/master/10.Simulation/Lab10.csv", header=T, sep=",")
+
+  # 1:
+library(data.table)
+
+
+tabla10$Genotype<-as.character(tabla10$Genotype)
+t.test(tabla10$systolic.bp)
+
   
+  # 2:
+data1<-t10$systolic.bp[t10$Genotype=="BA"] 
+data2<-t10$systolic.bp[t10$Genotype=="BB"] 
+
+
+  # 3:
+testResult <- t.test(data1,data2)
+
+  # 4:
+plot
+
+#### Week 11: ####
+# Ej 1:
+my.analysis<-lm(log(Ozone)~Solar.R+Wind+Temp,data=airquality[airquality>1,])
+my.analysis2<-lm(log(Ozone)~Solar.R+Wind+Temp,data=airquality)
+## Compare residuals with the normal distribution:
+qqnorm(my.analysis$residuals)
+sd.1<-sd(my.analysis$residuals)
+lines((-3):3,((-3):3)*sd.1,type="l",lwd=3,col="red")
+
+# Ej 2:
+my.analysis3<-lm(log(Ozone)~Solar.R+Wind+Temp+
+                   Solar.R:Wind+Solar.R:Temp+Wind:Temp,
+                 data=airquality[airquality>1,])
+## Reduce the model with the drop1()
+drop1(my.analysis3, test="F")
+summary(my.analysis3)
+
+## Update the model:
+my.analysis<-update(my.analysis,~.-Solar.R:Wind)
+
+# Ej 3:
+library(glm2)
+my.analysis<-glm(satellite~width,family=binomial,data=crab.data)
+
+## predict.glm:
+my.linear.predictor<-data.frame(
+  prediction=predict(my.analysis,se.fit=TRUE)$fit,
+  lower=predict(my.analysis,se.fit=TRUE)$fit-
+    1.96*predict(my.analysis,se.fit=TRUE)$se.fit,
+  upper=predict(my.analysis,se.fit=TRUE)$fit+
+    1.96*predict(my.analysis,se.fit=TRUE)$se.fit)
+
+## Linear predictors:
+my.linear.predictor<-my.linear.predictor[order(crab.data$width),]
+
+## Transform to lineal regresion
+logistic<-function(x){exp(x)/(1+exp(x))}
+my.predictor<-logistic(my.linear.predictor)
+
+## Plot:
+plot(sort(crab.data$width),my.predictor$prediction,type="l",
+     xlab='width',ylab='p(satellite)')
+lines(sort(crab.data$width),my.predictor$upper,type="l",lty=2)
+lines(sort(crab.data$width),my.predictor$lower,type="l",lty=2) 
+
+## Summary:
+summary(crab.data$width)
+
+## 
+my.cut<-cut(crab.data$width,breaks=20+(0:5)*3) 
+my.means<-tapply(crab.data$satellite,my.cut,mean) 
+lines(20+(0:4)*3+1.5,my.means,type="p",pch=16) 
+
+# Quiz 11:
+# 1 and 2:
+library(UsingR)
+a<-father.son
+reg1<-lm(father.son$sheight~father.son$fheight)
+summary(reg1)
+
+# 3:
+y ~ x + z + w + x:z + x:w + z:w ## Modelo
+y ~ x + z*w + x:z + x:w
+y ~ x + z + w + z*w + x*z + x*w
+y ~ z*w + x*z + x:w
+
+# Lab 11:
+install.packages("R330")
+library(R330)
+wine<-wine.df
+View(wine)
+# 1:
+my.analysis<-lm(wine$price~wine$year + wine$temp + wine$h.rain + wine$w.rain + wine$h.rain:wine$w.rain)
+summary(my.analysis)
+
+# 2: 
+drop1(my.analysis, test="F")
+
+# 3:
+coef(precio)[4]+800*coef(precio)[6] 
+
+# 4:
+predict(precio)
+m_w_t<-mean(wine$temp)
+m_w_hr<-mean(wine$h.rain)
+m_w_wr<-mean(wine$w.rain)
+
+# 4.1
+newdata <- subset(year=19885,wine, temp >= mean(wine$temp) & h.rain >= mean(wine$h.rain) & w.rain >= mean(wine$w.rain))
+predict(precio, temp=mean(wine$temp), h.rain=mean(mean(wine$h.rain)),w.rain=mean(mean(wine$w.rain)))
+
+# Official:
+new.data<-data.frame(year=1985,
+                     temp=mean(wine.df$temp),
+                     h.rain=mean(wine.df$h.rain),
+                     w.rain=mean(wine.df$w.rain))
+
+predict(my.analysis,newdata=new.data)
+
+
+# 5:
+log_precio<-lm(log(wine$price) ~ wine$year + wine$temp + wine$h.rain + wine$w.rain + wine$h.rain:wine$w.rain)
+summary(log_precio)
+
+# 6:
+drop1(log_precio,test="F")
+
+log_precio<-update(log_precio,~.-h.rain:w.rain)
+drop1(log_precio,test="F")
+
+# 7:
+log_precio2<-update(log_precio,~.-wine$h.rain:wine$w.rain)
+summary(log_precio2)
+
+#another option:
+my.analysis<-lm(log(price)~year+temp+h.rain+w.rain,data=wine.df)
+summary(my.analysis)
+
+
+# 8: 
+new.data<-data.frame(year=1985,
+                     temp=mean(wine.df$temp),
+                     h.rain=mean(wine.df$h.rain),
+                     w.rain=mean(wine.df$w.rain))
+
+exp(predict(my.analysis,newdata=new.data))
+
+
 #### Week 12: ####
 # Quiz 1:
 packageurl <- "https://mran.revolutionanalytics.com/snapshot/2015-11-30/bin/windows/contrib/3.2/ggplot2_1.0.1.zip"
